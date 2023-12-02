@@ -27,8 +27,15 @@ toolbar.addEventListener('change', e => {
     if(e.target.id === 'lineWidth') {
         lineWidth = e.target.value;
     }
-    
 });
+
+const startDrawing = (e) => {
+    isPainting = true;
+    startX = e.clientX || e.touches[0].clientX;
+    startY = e.clientY || e.touches[0].clientY;
+    ctx.beginPath();
+    ctx.moveTo(startX - canvasOffsetX, startY - canvasOffsetY);
+}
 
 const draw = (e) => {
     if(!isPainting) {
@@ -38,20 +45,24 @@ const draw = (e) => {
     ctx.lineWidth = lineWidth;
     ctx.lineCap = 'round';
 
-    ctx.lineTo(e.clientX - canvasOffsetX, e.clientY);
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+
+    ctx.lineTo(x - canvasOffsetX, y - canvasOffsetY);
     ctx.stroke();
 }
 
-canvas.addEventListener('mousedown', (e) => {
-    isPainting = true;
-    startX = e.clientX;
-    startY = e.clientY;
-});
-
-canvas.addEventListener('mouseup', e => {
+const stopDrawing = () => {
     isPainting = false;
     ctx.stroke();
     ctx.beginPath();
-});
+}
+
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('touchstart', startDrawing);
+
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('touchend', stopDrawing);
 
 canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('touchmove', draw);
